@@ -1,4 +1,4 @@
-import Jobs from '../modal/JobsModal.js';
+import Jobs from '../modals/JobsModal.js';
 
 // Listar todos os jobs
 export const listarJobs = async (req, res) => {

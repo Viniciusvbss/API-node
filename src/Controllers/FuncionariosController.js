@@ -1,4 +1,4 @@
-import Funcionarios from '../modal/FuncionariosModal.js';
+import Funcionarios from '../modals/FuncionariosModal.js';
 
 // Listar todos os funcionários
 export const listarFuncionarios = async (req, res) => {

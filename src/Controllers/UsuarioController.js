@@ -1,106 +1,52 @@
-import bcrypt from 'bcrypt';
-import Usuario from '../modal/UsuarioModal.js';
+import UsuarioService from '../service/UsuarioService.js';
 
-// Listar todos os usuários
+// Listar
 export const listarUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll();
+    const usuarios = await UsuarioService.listar();
     res.json(usuarios);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao listar usuários', detalhes: error.message });
   }
 };
 
-// Buscar um usuário pelo ID
+// Buscar por ID
 export const buscarUsuarioPorId = async (req, res) => {
-  const { id } = req.params;
   try {
-    const usuario = await Usuario.findByPk(id);
-    if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado' });
-    }
+    const usuario = await UsuarioService.buscarPorId(req.params.id);
+    if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
     res.json(usuario);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar usuário', detalhes: error.message });
   }
 };
 
-// Criar um novo usuário com senha criptografada
+// Criar
 export const criarUsuario = async (req, res) => {
   try {
-    const { nome, email, senha, tipo } = req.body;
-
-    if (!nome || !email || !senha || !tipo) {
-      return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
-    }
-
-    // Opcional: Verifica se o tipo é válido, conforme ENUM no modelo
-    const tiposValidos = ['admin', 'gerente', 'rh'];
-    if (!tiposValidos.includes(tipo)) {
-      return res.status(400).json({ erro: 'Tipo inválido.' });
-    }
-
-    // Checa se email já existe para evitar duplicidade
-    const usuarioExistente = await Usuario.findOne({ where: { email } });
-    if (usuarioExistente) {
-      return res.status(400).json({ erro: 'Email já cadastrado.' });
-    }
-
-    const senha_hash = await bcrypt.hash(senha, 10);
-
-    const novoUsuario = await Usuario.create({
-      nome,
-      email,
-      senha_hash,
-      tipo,
-      criado_em: new Date(),
-      atualizado_em: new Date()
-    });
-
+    const novoUsuario = await UsuarioService.criar(req.body);
     res.status(201).json(novoUsuario);
   } catch (error) {
-    console.error('Erro ao criar usuário:', error);
     res.status(500).json({ erro: 'Erro ao criar usuário', detalhes: error.message });
   }
 };
 
-
-// Atualizar um usuário pelo ID com hash de senha se enviada
+// Atualizar
 export const atualizarUsuario = async (req, res) => {
-  const { id } = req.params;
-  const { nome, email, senha, tipo } = req.body;
   try {
-    const usuario = await Usuario.findByPk(id);
-    if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado' });
-    }
-
-    usuario.nome = nome || usuario.nome;
-    usuario.email = email || usuario.email;
-    if (senha) {
-      const saltRounds = 10;
-      usuario.senha_hash = await bcrypt.hash(senha, saltRounds);
-    }
-    usuario.tipo = tipo || usuario.tipo;
-    usuario.atualizado_em = new Date();
-
-    await usuario.save();
-
-    res.json(usuario);
+    const usuarioAtualizado = await UsuarioService.atualizar(req.params.id, req.body);
+    if (!usuarioAtualizado) return res.status(404).json({ erro: 'Usuário não encontrado' });
+    res.json(usuarioAtualizado);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar usuário', detalhes: error.message });
   }
 };
 
-// Deletar um usuário pelo ID
+// Deletar
 export const deletarUsuario = async (req, res) => {
-  const { id } = req.params;
   try {
-    const usuario = await Usuario.findByPk(id);
-    if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado' });
-    }
-    await usuario.destroy();
+    const sucesso = await UsuarioService.deletar(req.params.id);
+    if (!sucesso) return res.status(404).json({ erro: 'Usuário não encontrado' });
     res.json({ mensagem: 'Usuário deletado com sucesso' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao deletar usuário', detalhes: error.message });

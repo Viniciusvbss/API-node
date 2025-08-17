@@ -20,7 +20,7 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false
   },
   tipo: {
-    type: DataTypes.ENUM('admin', 'user'), // ajuste os valores conforme seu banco
+    type: DataTypes.ENUM('admin', 'gerente', 'rh'), // ajuste os valores conforme seu banco
     allowNull: false
   },
   criado_em: {

@@ -18,8 +18,8 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email }, // payload
-      'SUA_CHAVE_SECRETA', // depois colocar em variável de ambiente
-      { expiresIn: '1h' } // expira em 1 hora
+      process.env.JWT_SECRET,                   // chave do .env
+      { expiresIn: process.env.JWT_EXPIRES || '1h' } // usa expiração do .env ou 1h por padrão
     );
 
     res.json({ mensagem: 'Login realizado com sucesso', token });

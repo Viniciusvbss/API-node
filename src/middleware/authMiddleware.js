@@ -7,11 +7,11 @@ const authMiddleware = (req, res, next) => {
     return res.status(401).json({ erro: 'Token não fornecido' });
   }
 
-  const token = authHeader.split(' ')[1]; // pega só o token
+  const token = authHeader.split(' ')[1]; // Bearer <token>
 
   try {
-    const decoded = jwt.verify(token, 'SUA_CHAVE_SECRETA');
-    req.usuario = decoded; // dados do usuário no req
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // agora usa o .env
+    req.usuario = decoded; // coloca os dados do usuário no request
     next();
   } catch (error) {
     return res.status(401).json({ erro: 'Token inválido ou expirado' });

@@ -1,20 +1,19 @@
-import Funcionarios from '../modals/FuncionariosModal.js';
+import FuncionariosService from '../service/FuncionariosService.js';
 
 // Listar todos os funcionários
 export const listarFuncionarios = async (req, res) => {
   try {
-    const funcionarios = await Funcionarios.findAll();
+    const funcionarios = await FuncionariosService.listar();
     res.json(funcionarios);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao listar funcionários', detalhes: error.message });
   }
 };
 
-// Buscar um funcionário pelo ID
+// Buscar funcionário por ID
 export const buscarFuncionarioPorId = async (req, res) => {
-  const { id } = req.params;
   try {
-    const funcionario = await Funcionarios.findByPk(id);
+    const funcionario = await FuncionariosService.buscarPorId(req.params.id);
     if (!funcionario) {
       return res.status(404).json({ erro: 'Funcionário não encontrado' });
     }
@@ -24,86 +23,36 @@ export const buscarFuncionarioPorId = async (req, res) => {
   }
 };
 
-// Criar um novo funcionário
+// Criar funcionário
 export const criarFuncionario = async (req, res) => {
-  const {
-    nome,
-    email,
-    telefone,
-    endereco,
-    data_nascimento,
-    data_admissao,
-    status,
-    job_id
-  } = req.body;
-
   try {
-    const novoFuncionario = await Funcionarios.create({
-      nome,
-      email,
-      telefone,
-      endereco,
-      data_nascimento,
-      data_admissao,
-      status,
-      job_id,
-      criado_em: new Date()
-    });
-
+    const novoFuncionario = await FuncionariosService.criar(req.body);
     res.status(201).json(novoFuncionario);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao criar funcionário', detalhes: error.message });
   }
 };
 
-// Atualizar um funcionário pelo ID
+// Atualizar funcionário
 export const atualizarFuncionario = async (req, res) => {
-  const { id } = req.params;
-  const {
-    nome,
-    email,
-    telefone,
-    endereco,
-    data_nascimento,
-    data_admissao,
-    status,
-    job_id
-  } = req.body;
-
   try {
-    const funcionario = await Funcionarios.findByPk(id);
-    if (!funcionario) {
+    const funcionarioAtualizado = await FuncionariosService.atualizar(req.params.id, req.body);
+    if (!funcionarioAtualizado) {
       return res.status(404).json({ erro: 'Funcionário não encontrado' });
     }
-
-    funcionario.nome = nome || funcionario.nome;
-    funcionario.email = email || funcionario.email;
-    funcionario.telefone = telefone || funcionario.telefone;
-    funcionario.endereco = endereco || funcionario.endereco;
-    funcionario.data_nascimento = data_nascimento || funcionario.data_nascimento;
-    funcionario.data_admissao = data_admissao || funcionario.data_admissao;
-    funcionario.status = status || funcionario.status;
-    funcionario.job_id = job_id || funcionario.job_id;
-    funcionario.criado_em = funcionario.criado_em; // não atualiza esse campo
-
-    await funcionario.save();
-
-    res.json(funcionario);
+    res.json(funcionarioAtualizado);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar funcionário', detalhes: error.message });
   }
 };
 
-// Deletar um funcionário pelo ID
+// Deletar funcionário
 export const deletarFuncionario = async (req, res) => {
-  const { id } = req.params;
   try {
-    const funcionario = await Funcionarios.findByPk(id);
-    if (!funcionario) {
+    const deletado = await FuncionariosService.deletar(req.params.id);
+    if (!deletado) {
       return res.status(404).json({ erro: 'Funcionário não encontrado' });
     }
-
-    await funcionario.destroy();
     res.json({ mensagem: 'Funcionário deletado com sucesso' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao deletar funcionário', detalhes: error.message });

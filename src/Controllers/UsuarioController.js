@@ -24,9 +24,16 @@ export const buscarUsuarioPorId = async (req, res) => {
 // Criar
 export const criarUsuario = async (req, res) => {
   try {
-    const novoUsuario = await UsuarioService.criar(req.body);
+    // ⚠️ Pega o tipo do usuário logado (req.user vem do middleware JWT)
+    const logadoTipo = req.user?.tipo || null;
+
+    const novoUsuario = await UsuarioService.criar(req.body, logadoTipo);
     res.status(201).json(novoUsuario);
   } catch (error) {
+    // Se o erro for de permissão, devolve 403 (forbidden)
+    if (error.message.includes('permissão')) {
+      return res.status(403).json({ erro: error.message });
+    }
     res.status(500).json({ erro: 'Erro ao criar usuário', detalhes: error.message });
   }
 };

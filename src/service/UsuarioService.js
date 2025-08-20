@@ -31,10 +31,11 @@ const criar = async ({ nome, email, senha, tipo }, logadoTipo = null) => {
   // Definição de permissões
   const permissoes = {
     admin: ['admin', 'gerente', 'rh'],
-    gerente: ['gerente', 'rh','admin'],
+    gerente: ['gerente', 'rh'],
     rh: ['rh']
   };
 
+  
   // Verifica se o logado tem permissão para criar o novo tipo
   if (!permissoes[logadoTipo]?.includes(tipo)) {
     throw new Error('Você não tem permissão para criar este tipo de usuário');

@@ -1,4 +1,6 @@
 import UsuarioService from '../service/UsuarioService.js';
+import { getJsonToken } from '../utils/auth.js'
+
 
 // Listar
 export const listarUsuarios = async (req, res) => {
@@ -25,7 +27,11 @@ export const buscarUsuarioPorId = async (req, res) => {
 export const criarUsuario = async (req, res) => {
   try {
     // ⚠️ Pega o tipo do usuário logado (req.user vem do middleware JWT)
-    const logadoTipo = req.user?.tipo || null;
+    const jsonToken = await getJsonToken(req)
+    const logadoTipo = jsonToken.tipo || null;
+    // ou req.get("Authorization")
+    console.log(jsonToken.tipo)
+
 
     const novoUsuario = await UsuarioService.criar(req.body, logadoTipo);
     res.status(201).json(novoUsuario);
@@ -37,6 +43,7 @@ export const criarUsuario = async (req, res) => {
     res.status(500).json({ erro: 'Erro ao criar usuário', detalhes: error.message });
   }
 };
+
 
 // Atualizar
 export const atualizarUsuario = async (req, res) => {
